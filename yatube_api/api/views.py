@@ -13,7 +13,7 @@ class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username',)
+    search_fields = ['user__username', 'following__username']
 
     def get_queryset(self):
         # Показываем только подписки текущего пользователя
@@ -26,8 +26,8 @@ class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         if user == following:
             raise ValidationError("Нельзя подписаться на самого себя.")
         # Проверяем, чтобы подписка была уникальной
-        # if Follow.objects.filter(user=user, following=following).exists():
-        #     raise ValidationError("Вы уже подписаны на этого пользователя.")
+        if Follow.objects.filter(user=user, following=following).exists():
+            raise ValidationError("Вы уже подписаны на этого пользователя.")
         serializer.save(user=user)
 
 
